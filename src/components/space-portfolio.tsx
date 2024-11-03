@@ -10,6 +10,7 @@ import {
   Calendar,
   Github,
   Twitter,
+  ExternalLink,
 } from "lucide-react";
 import astronaut2 from "../assets/astronaut2.png";
 import profile from "../assets/profile.jpg";
@@ -40,20 +41,29 @@ export function SpacePortfolioComponent() {
   const projects = [
     {
       name: "EasyPolls",
-      description:
-        "A polling application where users can create polls and vote. Built using Django.",
+      description: "A polling application where users can create polls and vote. Built using Django.",
+      icon: "🗳️",
+      tech: ["Django", "Python", "PostgreSQL"],
+      github: "https://github.com/yourusername/easypolls",
+      live: "https://easypolls.example.com",
     },
     {
       name: "Chatify",
-      description:
-        "Real-time chat application with end-to-end encryption. Built using Flutter.",
+      description: "Real-time chat application with end-to-end encryption. Built using Flutter.",
+      icon: "💬",
+      tech: ["Flutter", "Dart", "Firebase"],
+      github: "https://github.com/yourusername/chatify",
+      live: "https://chatify.example.com",
     },
     {
       name: "Art Avenue",
-      description:
-        "A mobile app for artists to share their work. Built using Android Studio (Java).",
+      description: "A mobile app for artists to share their work. Built using Android Studio (Java).",
+      icon: "🎨",
+      tech: ["Java", "Android SDK", "Firebase"],
+      github: "https://github.com/yourusername/art-avenue",
+      live: "https://play.google.com/store/apps/details?id=com.example.artavenue",
     },
-  ];
+  ]
 
   const experiences = [
     {
@@ -124,6 +134,7 @@ export function SpacePortfolioComponent() {
 
       {/* Main content */}
       <div className="container mx-auto px-4 py-16 relative z-10">
+      <h2 className="text-3xl font-bold mb-12 text-center">Anish Sharma</h2>
         {/* Navigation */}
         <nav className="mb-12 flex gap-2 flex-wrap justify-center w-full">
             {navItems.map((section) => (
@@ -151,10 +162,10 @@ export function SpacePortfolioComponent() {
               alt="Profile"
               className="w-48 h-48 rounded-full mx-auto mb-4"
             />
-            <h2 className="text-3xl font-bold mb-2">Anish Sharma</h2>
-            {/* <h2 className="text-2xl font-bold mb-8 text-center">
+
+            <h2 className="text-2xl font-bold mb-8 text-center">
               Software Developer
-            </h2> */}
+            </h2>
             <p className="text-xl text-gray-400 mb-4">
               Exploring the digital universe, one commit at a time
             </p>
@@ -178,7 +189,7 @@ export function SpacePortfolioComponent() {
             {skills.map((skill, index) => (
               <motion.div
                 key={skill}
-                className="bg-gray-800 rounded-full px-4 py-2 text-lg"
+                className="bg-gray-800 rounded-full px-4 py-2 text-lg cursor-pointer"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: index * 0.1 }}
@@ -192,26 +203,66 @@ export function SpacePortfolioComponent() {
 
         {/* Projects Section */}
         {activeSection === "projects" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-12"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 px-4 gap-8">
             {projects.map((project, index) => (
               <motion.div
                 key={project.name}
-                className="bg-gray-800 rounded-lg p-6"
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
+                className="bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: index * 0.2 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <h3 className="text-xl font-bold mb-2">{project.name}</h3>
-                <p className="text-gray-400">{project.description}</p>
+                <div className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-4xl">{project.icon}</span>
+                      <h3 className="text-xl font-bold">{project.name}</h3>
+                    </div>
+                    <Rocket className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <p className="text-gray-300">{project.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tech.map((tech) => (
+                      <span
+                        key={tech}
+                        className="px-2 py-1 text-xs font-semibold bg-purple-700 rounded-full"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-gray-700 px-6 py-4 flex justify-between items-center">
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2"
+                  >
+                    <Github className="w-5 h-5" />
+                    <span>View Code</span>
+                  </a>
+                  <a
+                    href={project.live}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    <span>Live Demo</span>
+                  </a>
+                </div>
               </motion.div>
             ))}
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
+      )}
 
         {/* Experience Section */}
         {activeSection === "experience" && (
