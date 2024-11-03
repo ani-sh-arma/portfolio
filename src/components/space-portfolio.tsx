@@ -125,20 +125,18 @@ export function SpacePortfolioComponent() {
       {/* Main content */}
       <div className="container mx-auto px-4 py-16 relative z-10">
         {/* Navigation */}
-        <nav className="mb-12 flex justify-center overflow-hidden w-full">
-          <div className="flex space-x-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
+        <nav className="mb-12 flex gap-2 flex-wrap justify-center w-full">
             {navItems.map((section) => (
               <button
                 key={section}
                 onClick={() => setActiveSection(section)}
-                className={`px-4 py-2 rounded-full flex-shrink-0 ${
+                className={`px-4 py-2 w-fit rounded-full ${
                   activeSection === section ? "bg-purple-600" : "bg-gray-800"
                 } hover:bg-purple-500 transition-colors`}
               >
                 {section.charAt(0).toUpperCase() + section.slice(1)}
               </button>
             ))}
-          </div>
         </nav>
 
         {/* Profile Section */}
