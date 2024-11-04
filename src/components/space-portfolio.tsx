@@ -3,13 +3,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ChevronDown,
-  Code,
-  Linkedin,
-  Mail,
   Rocket,
   Calendar,
   Github,
-  Twitter,
   ExternalLink,
 } from "lucide-react";
 import astronaut2 from "../assets/astronaut2.png";
