@@ -20,7 +20,7 @@ export function SpacePortfolioComponent() {
       top: window.innerHeight + 200,
       behavior: "smooth",
     });
-    setActiveSection("Summary");
+    setActiveSection(activeSection ?? "Summary");
   };
 
   return (
