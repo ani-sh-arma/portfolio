@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Calendar, Rocket } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { SiFlutter } from "react-icons/si";
 
 export function ExperienceSection() {
   const experiences = [
@@ -42,7 +43,7 @@ export function ExperienceSection() {
           whileHover={{ scale: 1.02 }}
         >
           <div className="flex items-center mb-4">
-            <Rocket className="w-8 h-8 text-purple-400 mr-4" />
+            <SiFlutter className="w-8 h-8 text-blue-400 mr-4" />
             <div>
               <h3 className="text-2xl font-bold">{exp.role}</h3>
               <p className="text-purple-400">{exp.company}</p>
