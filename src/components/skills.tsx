@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   FaReact,
   FaNodeJs,
@@ -195,8 +195,10 @@ const skillCategories = {
 // All skills flattened for "All" category view
 const allSkills = Object.values(skillCategories).flat();
 
+// Your skill data remains unchanged...
+
 export function SkillsSection() {
-  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("all");
 
   // Function to render skill cards
   const renderSkillCards = (skills: any[]) => {
@@ -208,58 +210,17 @@ export function SkillsSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.5 }}
-            onMouseEnter={() => setHoveredSkill(skill.name)}
-            onMouseLeave={() => setHoveredSkill(null)}
             className="relative"
           >
             <Card className="relative overflow-hidden bg-gray-800 border-0 rounded-xl h-full">
-              {/* Animated background gradient */}
-              <motion.div
-                className={`absolute inset-0 bg-gradient-to-br ${skill.gradientFrom} ${skill.gradientTo} opacity-10`}
-                initial={{ opacity: 0.05 }}
-                animate={{
-                  opacity: hoveredSkill === skill.name ? 0.2 : 0.05,
-                }}
-                transition={{ duration: 0.3 }}
-              />
-
-              {/* Skill content */}
               <div className="p-6 relative z-10 h-full flex flex-col">
-                {/* Category badge */}
-                <div className="absolute top-2 right-2">
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full bg-opacity-20 ${skill.gradientFrom.replace(
-                      "from-",
-                      "bg-"
-                    )} text-white`}
-                  >
-                    {skill.category}
-                  </span>
-                </div>
-
-                {/* Skill header with icon */}
                 <div className="flex items-center mb-4 mt-4">
-                  <motion.div
-                    className="text-3xl mr-3"
-                    animate={{
-                      rotate: hoveredSkill === skill.name ? [0, 10, -10, 0] : 0,
-                      scale: hoveredSkill === skill.name ? [1, 1.2, 1] : 1,
-                    }}
-                    transition={{
-                      duration: 0.5,
-                      repeat: hoveredSkill === skill.name ? Infinity : 0,
-                      repeatDelay: 1,
-                    }}
-                  >
-                    {skill.icon}
-                  </motion.div>
+                  <div className="text-3xl mr-3">{skill.icon}</div>
                   <h3 className="text-xl font-bold text-white">{skill.name}</h3>
                 </div>
                 <p className="text-gray-400 text-sm mb-4 flex-grow">
                   {skill.description}
                 </p>
-
-                {/* Skill level */}
                 <div className="mt-auto">
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-gray-400">Proficiency</span>
@@ -267,8 +228,6 @@ export function SkillsSection() {
                       {skill.level}%
                     </span>
                   </div>
-
-                  {/* Custom progress bar */}
                   <div className="h-2 w-full bg-gray-700 rounded-full overflow-hidden">
                     <motion.div
                       className={`h-full bg-gradient-to-r ${skill.gradientFrom} ${skill.gradientTo}`}
@@ -278,36 +237,6 @@ export function SkillsSection() {
                     />
                   </div>
                 </div>
-
-                {/* Particle effects on hover */}
-                {hoveredSkill === skill.name && (
-                  <>
-                    {[...Array(5)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className={`absolute w-1 h-1 rounded-full ${skill.gradientFrom.replace(
-                          "from-",
-                          "bg-"
-                        )}`}
-                        initial={{
-                          x: "50%",
-                          y: "50%",
-                          opacity: 0,
-                        }}
-                        animate={{
-                          x: `${50 + (Math.random() * 40 - 20)}%`,
-                          y: `${50 + (Math.random() * 40 - 20)}%`,
-                          opacity: [0, 1, 0],
-                        }}
-                        transition={{
-                          duration: 1 + Math.random(),
-                          repeat: Infinity,
-                          repeatType: "loop",
-                        }}
-                      />
-                    ))}
-                  </>
-                )}
               </div>
             </Card>
           </motion.div>
@@ -326,77 +255,42 @@ export function SkillsSection() {
         backend development to mobile applications and AI.
       </p>
 
-      <Tabs defaultValue="all" className="w-full max-w-5xl mx-auto mb-10">
+      <Tabs className="w-full max-w-5xl mx-auto mb-10">
         <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-8 bg-gray-800">
-          <TabsTrigger value="all" className="data-[state=active]:bg-gray-700">
-            All
-          </TabsTrigger>
-          <TabsTrigger
-            value="frontend"
-            className="data-[state=active]:bg-blue-900/30"
-          >
-            Frontend
-          </TabsTrigger>
-          <TabsTrigger
-            value="backend"
-            className="data-[state=active]:bg-green-900/30"
-          >
-            Backend
-          </TabsTrigger>
-          <TabsTrigger
-            value="mobile"
-            className="data-[state=active]:bg-indigo-900/30"
-          >
-            Mobile
-          </TabsTrigger>
-          <TabsTrigger
-            value="programming"
-            className="data-[state=active]:bg-purple-900/30"
-          >
-            Programming
-          </TabsTrigger>
-          <TabsTrigger
-            value="tools"
-            className="data-[state=active]:bg-orange-900/30"
-          >
-            Tools
-          </TabsTrigger>
-          <TabsTrigger
-            value="ai"
-            className="data-[state=active]:bg-teal-900/30"
-          >
-            AI & Data
-          </TabsTrigger>
+          {[
+            "all",
+            "frontend",
+            "backend",
+            "mobile",
+            "programming",
+            "tools",
+            "ai",
+          ].map((category) => (
+            <TabsTrigger
+              key={category}
+              value={category}
+              onClick={() => setActiveTab(category)}
+              className={`data-[state=active]:bg-gray-700 ${
+                activeTab === category ? "bg-gray-700 text-white" : ""
+              }`}
+            >
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </TabsTrigger>
+          ))}
         </TabsList>
-
-        <TabsContent value="all" className="mt-0">
-          {renderSkillCards(allSkills)}
-        </TabsContent>
-
-        <TabsContent value="frontend" className="mt-0">
-          {renderSkillCards(skillCategories.frontend)}
-        </TabsContent>
-
-        <TabsContent value="backend" className="mt-0">
-          {renderSkillCards(skillCategories.backend)}
-        </TabsContent>
-
-        <TabsContent value="mobile" className="mt-0">
-          {renderSkillCards(skillCategories.mobile)}
-        </TabsContent>
-
-        <TabsContent value="programming" className="mt-0">
-          {renderSkillCards(skillCategories.programming)}
-        </TabsContent>
-
-        <TabsContent value="tools" className="mt-0">
-          {renderSkillCards(skillCategories.tools)}
-        </TabsContent>
-
-        <TabsContent value="ai" className="mt-0">
-          {renderSkillCards(skillCategories.ai)}
-        </TabsContent>
       </Tabs>
+
+      {/* Render skill cards based on activeTab */}
+      <div className="relative">
+        {activeTab === "all" && renderSkillCards(allSkills)}
+        {activeTab === "frontend" && renderSkillCards(skillCategories.frontend)}
+        {activeTab === "backend" && renderSkillCards(skillCategories.backend)}
+        {activeTab === "mobile" && renderSkillCards(skillCategories.mobile)}
+        {activeTab === "programming" &&
+          renderSkillCards(skillCategories.programming)}
+        {activeTab === "tools" && renderSkillCards(skillCategories.tools)}
+        {activeTab === "ai" && renderSkillCards(skillCategories.ai)}
+      </div>
     </div>
   );
 }
