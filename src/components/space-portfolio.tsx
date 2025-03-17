@@ -13,7 +13,17 @@ import { SkillsSection } from "./skills";
 export function SpacePortfolioComponent() {
   const [activeSection, setActiveSection] = useState("Summary");
 
-  const navItems = ["Summary", "Skills", "Projects", "Experience", "Contact"];
+  const resumeUrl =
+    "https://kll1svcrmn.ufs.sh/f/YhFHEFaRz0wbWP5qyXM2wLuQVzcFZUHPS8JN9RTgGiMsoOtE";
+
+  const navItems = [
+    "Summary",
+    "Skills",
+    "Projects",
+    "Experience",
+    "Resume",
+    "Contact",
+  ];
 
   const handleChevronClick = () => {
     window.scrollTo({
@@ -118,6 +128,16 @@ export function SpacePortfolioComponent() {
         {activeSection === "Projects" && <ProjectsSection />}
         {activeSection === "Experience" && <ExperienceSection />}
         {activeSection === "Contact" && <ContactSection />}
+        {activeSection === "Resume" && (
+          <object
+            data={resumeUrl}
+            type="application/pdf"
+            className="w-full h-screen"
+          >
+            Your browser does not support PDFs.
+            <a href="sample.pdf">Download the PDF</a> instead.
+          </object>
+        )}
       </div>
     </div>
   );
