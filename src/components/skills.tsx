@@ -255,8 +255,8 @@ export function SkillsSection() {
         backend development to mobile applications and AI.
       </p>
 
-      <Tabs className="w-full max-w-5xl mx-auto mb-10">
-        <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-8 bg-gray-800">
+      <Tabs className="w-full max-w-5xl mx-auto mb-10 ">
+        <TabsList className="grid grid-cols-3 md:grid-cols-7 mb-8 bg-gray-800 h-fit">
           {[
             "all",
             "frontend",
