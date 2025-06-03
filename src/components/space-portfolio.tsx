@@ -26,7 +26,7 @@ export function SpacePortfolioComponent() {
   return (
     <div className="bg-gray-900 text-white overflow-hidden relative py-12 min-h-screen">
       {/* Navigation Section */}
-      <nav className="fixed top-0 w-full z-50 flex gap-2 flex-wrap justify-center py-4 bg-gray-900 bg-opacity-50 backdrop-filter backdrop-blur-lg">
+      <nav className="fixed top-0 w-full z-50 flex gap-2 flex-wrap justify-center py-4 bg-gray-900 bg-opacity-5 backdrop-filter backdrop-blur-sm">
         {navItems.map((section) => (
           <button
             key={section}
@@ -39,6 +39,7 @@ export function SpacePortfolioComponent() {
           </button>
         ))}
       </nav>
+
       {/* Star field background */}
       {[...Array(100)].map((_, i) => (
         <motion.div

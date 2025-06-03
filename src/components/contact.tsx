@@ -3,7 +3,7 @@ import { Code, Linkedin, Github, Twitter } from "lucide-react";
 
 export function ContactSection() {
   return (
-    <div>
+    <div className="mt-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
