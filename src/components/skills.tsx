@@ -1,6 +1,6 @@
-import { useState } from "react";
+// import { useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+// import { Card, CardContent } from "@/components/ui/card";
 import {
   FaReact,
   FaNodeJs,
@@ -153,7 +153,7 @@ const skills: Skill[] = [
 ];
 
 export function SkillsSection() {
-  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  // const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
   return (
     <div className="py-10 px-4 bg-transparent text-white">
@@ -165,7 +165,7 @@ export function SkillsSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
             whileHover={{ scale: 1.1, rotate: 5 }}
-            onClick={() => setSelectedSkill(skill)}
+            // onClick={() => setSelectedSkill(skill)}
             className="flex flex-col items-center cursor-pointer"
           >
             <div className="text-5xl mb-2">{skill.icon}</div>
