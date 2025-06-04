@@ -1,5 +1,5 @@
 // import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 // import { Card, CardContent } from "@/components/ui/card";
 import {
   FaReact,
@@ -21,6 +21,9 @@ import {
   SiCplusplus,
   SiTensorflow,
 } from "react-icons/si";
+import { Card, CardContent } from "./ui/card";
+import { useState } from "react";
+import { X } from "lucide-react";
 
 interface Skill {
   name: string;
@@ -153,7 +156,7 @@ const skills: Skill[] = [
 ];
 
 export function SkillsSection() {
-  // const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
   return (
     <div className="py-10 px-4 bg-transparent text-white">
@@ -165,7 +168,7 @@ export function SkillsSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
             whileHover={{ scale: 1.1, rotate: 5 }}
-            // onClick={() => setSelectedSkill(skill)}
+            onClick={() => setSelectedSkill(skill)}
             className="flex flex-col items-center cursor-pointer"
           >
             <div className="text-5xl mb-2">{skill.icon}</div>
@@ -174,42 +177,54 @@ export function SkillsSection() {
         ))}
       </div>
 
-      {/* {selectedSkill && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl mx-auto"
-        >
-          <Card className="bg-gray-800 border-0 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="text-4xl mr-4">{selectedSkill.icon}</div>
-                <div>
-                  <h3 className="text-2xl font-bold">{selectedSkill.name}</h3>
-                  <p className="text-gray-400 text-sm">
-                    {selectedSkill.category}
-                  </p>
+      <AnimatePresence>
+        {selectedSkill && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedSkill(null)}
+          >
+            <Card className="relative bg-gray-800 border-0 text-white min-w-[30vw]">
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                onClick={() => setSelectedSkill(null)}
+              >
+                <X size={24} />
+              </button>
+              <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                  <div className="text-4xl mr-4">{selectedSkill.icon}</div>
+                  <div>
+                    <h3 className="text-2xl font-bold">{selectedSkill.name}</h3>
+                    <p className="text-gray-400 text-sm">
+                      {selectedSkill.category}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <p className="text-gray-300 mb-4">{selectedSkill.description}</p>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Proficiency</span>
-                <span className="text-white font-medium">
-                  {selectedSkill.level}%
-                </span>
-              </div>
-              <div className="h-3 w-full bg-gray-700 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-to-r from-purple-500 to-indigo-500" // Using a generic gradient for simplicity
-                  initial={{ width: 0 }}
-                  animate={{ width: `${selectedSkill.level}%` }}
-                  transition={{ duration: 1 }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      )} */}
+                <p className="text-gray-300 mb-4">
+                  {selectedSkill.description}
+                </p>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-400">Proficiency</span>
+                  <span className="text-white font-medium">
+                    {selectedSkill.level}%
+                  </span>
+                </div>
+                <div className="h-3 w-full bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-500" // Using a generic gradient for simplicity
+                    initial={{ width: 0 }}
+                    animate={{ width: `${selectedSkill.level}%` }}
+                    transition={{ duration: 1 }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

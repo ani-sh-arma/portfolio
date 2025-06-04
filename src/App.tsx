@@ -8,13 +8,13 @@ import { ExperienceSection } from "./components/experience";
 import { ContactSection } from "./components/contact";
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState("Summary");
+  const [activeSection, setActiveSection] = useState("Me");
 
   const resumeUrl =
     "https://kll1svcrmn.ufs.sh/f/YhFHEFaRz0wbWP5qyXM2wLuQVzcFZUHPS8JN9RTgGiMsoOtE";
 
   const navItems = [
-    "Summary",
+    "Me",
     "Skills",
     "Projects",
     "Experience",
@@ -79,7 +79,7 @@ export default function App() {
 
       {/* Content Sections */}
       <div className="container mx-auto px-4 py-16 relative z-10 ">
-        {activeSection === "Summary" && <SummarySection />}
+        {activeSection === "Me" && <SummarySection />}
         {activeSection === "Skills" && <SkillsSection />}
         {activeSection === "Projects" && <ProjectsSection />}
         {activeSection === "Experience" && <ExperienceSection />}
