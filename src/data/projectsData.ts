@@ -10,6 +10,25 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    name: "Pilot",
+    description: "Pilot is a file storage solution like google drive.",
+    icon: "🗳️",
+    tech: ["Next JS", "JavaScript", "Sqlite", "Tailwind", "Drizzle ORM"],
+    github: "https://github.com/ani-sh-arma/pilot",
+    live: "https://pilotstore.vercel.app",
+    // image: "/assets/easypolls-preview.png", // Example image path
+  },
+  {
+    name: "create_flutter_app",
+    description:
+      "A CLI tool to create and scaffold necessary dependencies for flutter apps with ease.",
+    icon: "🗳️",
+    tech: ["Dart"],
+    github: "https://github.com/ani-sh-arma/create_flutter_app",
+    live: "https://pub.dev/packages/create_flutter_app",
+    // image: "/assets/easypolls-preview.png", // Example image path
+  },
+  {
     name: "EasyPolls",
     description:
       "A polling application where users can create polls and vote. Built using Django.",
