@@ -11,7 +11,8 @@ export function SkillsSection() {
     <div className="py-10 px-4 bg-transparent text-white">
       <div className="grid grid-cols-3 md:grid-cols-6 gap-8 max-w-4xl mx-auto mb-10">
         {skills.map((skill, index) => {
-          const IconComponent = iconMap[skill.icon];
+          const { component: IconComponent, className: iconClassName } =
+            iconMap[skill.icon];
           return (
             <motion.div
               key={skill.name}
@@ -23,7 +24,7 @@ export function SkillsSection() {
               className="flex flex-col items-center cursor-pointer"
             >
               <div className="text-5xl mb-2">
-                {IconComponent && <IconComponent className="text-blue-400" />}
+                {IconComponent && <IconComponent className={iconClassName} />}
               </div>
               <span className="text-sm text-center">{skill.name}</span>
             </motion.div>
@@ -52,7 +53,10 @@ export function SkillsSection() {
                   <div className="text-4xl mr-4">
                     {selectedSkill.icon &&
                       iconMap[selectedSkill.icon] &&
-                      React.createElement(iconMap[selectedSkill.icon])}
+                      React.createElement(
+                        iconMap[selectedSkill.icon].component,
+                        { className: iconMap[selectedSkill.icon].className }
+                      )}
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold">{selectedSkill.name}</h3>

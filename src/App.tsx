@@ -11,7 +11,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("Me");
 
   const resumeUrl =
-    "https://kll1svcrmn.ufs.sh/f/YhFHEFaRz0wbWP5qyXM2wLuQVzcFZUHPS8JN9RTgGiMsoOtE";
+    "https://kll1svcrmn.ufs.sh/f/YhFHEFaRz0wb1I9P0IGfxuesmz905XOtnw8TKkV2paLJYjWD";
 
   const navItems = [
     "Me",

@@ -9,6 +9,9 @@ import {
   FaAndroid,
   FaJs,
   FaDatabase,
+  FaJava,
+  FaPhp,
+  FaVuejs,
 } from "react-icons/fa";
 import {
   SiTypescript,
@@ -16,13 +19,18 @@ import {
   SiTailwindcss,
   SiFlutter,
   SiCplusplus,
-  SiTensorflow,
+  SiC,
+  SiDart,
+  SiMysql,
+  SiPostgresql,
+  SiSqlite,
+  SiMongodb,
 } from "react-icons/si";
 
 export interface Skill {
   name: string;
   level: number;
-  icon: string; // Changed to string to store icon name
+  icon: string;
   description: string;
   category: string;
 }
@@ -32,6 +40,13 @@ export const skills: Skill[] = [
     name: "React",
     level: 90,
     icon: "FaReact",
+    description: "Building interactive UIs with React and its ecosystem",
+    category: "Frontend",
+  },
+  {
+    name: "Vue",
+    level: 60,
+    icon: "FaVuejs",
     description: "Building interactive UIs with React and its ecosystem",
     category: "Frontend",
   },
@@ -106,9 +121,37 @@ export const skills: Skill[] = [
     category: "Mobile",
   },
   {
+    name: "C",
+    level: 50,
+    icon: "SiC",
+    description: "System programming and performance-critical applications",
+    category: "Programming",
+  },
+  {
     name: "C++",
     level: 75,
     icon: "SiCplusplus",
+    description: "System programming and performance-critical applications",
+    category: "Programming",
+  },
+  {
+    name: "Java",
+    level: 60,
+    icon: "FaJava",
+    description: "System programming and performance-critical applications",
+    category: "Programming",
+  },
+  {
+    name: "PHP",
+    level: 30,
+    icon: "FaPhp",
+    description: "System programming and performance-critical applications",
+    category: "Programming",
+  },
+  {
+    name: "Dart",
+    level: 90,
+    icon: "SiDart",
     description: "System programming and performance-critical applications",
     category: "Programming",
   },
@@ -118,6 +161,34 @@ export const skills: Skill[] = [
     icon: "FaDatabase",
     description: "Efficient data organization and manipulation",
     category: "Programming",
+  },
+  {
+    name: "My SQL",
+    level: 75,
+    icon: "SiMysql",
+    description: "Relational database management",
+    category: "Database",
+  },
+  {
+    name: "PostgreSQL",
+    level: 70,
+    icon: "SiPostgresql",
+    description: "Relational database management",
+    category: "Database",
+  },
+  {
+    name: "SQLite",
+    level: 90,
+    icon: "SiSqlite",
+    description: "Relational database management",
+    category: "Database",
+  },
+  {
+    name: "MongoDB",
+    level: 70,
+    icon: "SiMongodb",
+    description: "NoSQL database management",
+    category: "Database",
   },
   {
     name: "Algorithms",
@@ -140,30 +211,33 @@ export const skills: Skill[] = [
     description: "Project hosting and collaboration platform",
     category: "Tools",
   },
-  {
-    name: "Machine Learning",
-    level: 70,
-    icon: "SiTensorflow",
-    description: "AI models and data analysis",
-    category: "AI & Data Science",
-  },
 ];
 
-export const iconMap: { [key: string]: React.ElementType } = {
-  FaReact: FaReact,
-  FaNodeJs: FaNodeJs,
-  FaPython: FaPython,
-  FaCss3Alt: FaCss3Alt,
-  FaHtml5: FaHtml5,
-  FaGitAlt: FaGitAlt,
-  FaGithub: FaGithub,
-  FaAndroid: FaAndroid,
-  FaJs: FaJs,
-  FaDatabase: FaDatabase,
-  SiTypescript: SiTypescript,
-  SiDjango: SiDjango,
-  SiTailwindcss: SiTailwindcss,
-  SiFlutter: SiFlutter,
-  SiCplusplus: SiCplusplus,
-  SiTensorflow: SiTensorflow,
+export const iconMap: {
+  [key: string]: { component: React.ElementType; className: string };
+} = {
+  FaReact: { component: FaReact, className: "text-blue-400" },
+  FaVuejs: { component: FaVuejs, className: "text-green-400" },
+  FaNodeJs: { component: FaNodeJs, className: "text-green-400" },
+  FaPython: { component: FaPython, className: "text-yellow-400" },
+  FaCss3Alt: { component: FaCss3Alt, className: "text-blue-300" },
+  FaHtml5: { component: FaHtml5, className: "text-orange-400" },
+  FaGitAlt: { component: FaGitAlt, className: "text-orange-500" },
+  FaGithub: { component: FaGithub, className: "text-gray-500" },
+  FaAndroid: { component: FaAndroid, className: "text-green-500" },
+  FaJs: { component: FaJs, className: "text-yellow-300" },
+  FaDatabase: { component: FaDatabase, className: "text-purple-400" },
+  SiMysql: { component: SiMysql, className: "text-blue-400" },
+  SiPostgresql: { component: SiPostgresql, className: "text-blue-700" },
+  SiSqlite: { component: SiSqlite, className: "text-blue-600" },
+  SiMongodb: { component: SiMongodb, className: "text-green-400" },
+  SiTypescript: { component: SiTypescript, className: "text-blue-500" },
+  SiDjango: { component: SiDjango, className: "text-green-500" },
+  SiTailwindcss: { component: SiTailwindcss, className: "text-cyan-400" },
+  SiFlutter: { component: SiFlutter, className: "text-blue-500" },
+  SiCplusplus: { component: SiCplusplus, className: "text-red-400" },
+  SiC: { component: SiC, className: "text-blue-800" },
+  FaJava: { component: FaJava, className: "text-white-400" },
+  FaPhp: { component: FaPhp, className: "text-blue-400" },
+  SiDart: { component: SiDart, className: "text-teal-400" },
 };
