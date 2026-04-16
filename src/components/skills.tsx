@@ -1,91 +1,101 @@
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Card, CardContent } from "./ui/card";
-import { X } from "lucide-react";
 import { skills, Skill, iconMap } from "../data/skillsData";
 
 export function SkillsSection() {
+  const categories = useMemo(
+    () => Array.from(new Set(skills.map((skill) => skill.category))),
+    []
+  );
+
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
+  const filteredSkills = useMemo(
+    () => skills.filter((skill) => skill.category === activeCategory),
+    [activeCategory]
+  );
+
   return (
-    <div className="py-10 px-4 bg-transparent text-white">
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-8 max-w-4xl mx-auto mb-10">
-        {skills.map((skill, index) => {
-          const { component: IconComponent, className: iconClassName } =
-            iconMap[skill.icon];
+    <div className="section-shell">
+      <div className="section-header">
+        <p className="section-kicker">Skills</p>
+        <h2 className="section-title">A constellation of tools and technologies</h2>
+      </div>
+
+      <div className="mt-8 flex flex-wrap gap-2">
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setActiveCategory(category)}
+            className={`filter-pill ${
+              activeCategory === category ? "filter-pill--active" : ""
+            }`}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredSkills.map((skill, index) => {
+          const icon = iconMap[skill.icon];
+          const IconComponent = icon?.component;
+
           return (
-            <motion.div
+            <motion.button
               key={skill.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05, duration: 0.3 }}
-              whileHover={{ scale: 1.1, rotate: 5 }}
+              type="button"
               onClick={() => setSelectedSkill(skill)}
-              className="flex flex-col items-center cursor-pointer"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.45, delay: index * 0.05 }}
+              className="skill-card"
             >
-              <div className="text-5xl mb-2">
-                {IconComponent && <IconComponent className={iconClassName} />}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  {IconComponent ? (
+                    <span className="text-2xl">
+                      <IconComponent className={icon.className} />
+                    </span>
+                  ) : null}
+                  <div className="text-left">
+                    <p className="font-semibold text-white">{skill.name}</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-slate-300/65">
+                      {skill.category}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-sm font-medium text-cyan-100">{skill.level}%</p>
               </div>
-              <span className="text-sm text-center">{skill.name}</span>
-            </motion.div>
+              <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-600/40">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-blue-400 to-indigo-500"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: `${skill.level}%` }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                />
+              </div>
+            </motion.button>
           );
         })}
       </div>
 
       <AnimatePresence>
-        {selectedSkill && (
+        {selectedSkill ? (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedSkill(null)}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 14 }}
+            className="mt-6 rounded-2xl border border-cyan-100/20 bg-slate-900/70 p-6"
           >
-            <Card className="relative bg-gray-800 border-0 text-white min-w-[30vw]">
-              <button
-                className="absolute top-4 right-4 text-gray-400 hover:text-white"
-                onClick={() => setSelectedSkill(null)}
-              >
-                <X size={24} />
-              </button>
-              <CardContent className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className="text-4xl mr-4">
-                    {selectedSkill.icon &&
-                      iconMap[selectedSkill.icon] &&
-                      React.createElement(
-                        iconMap[selectedSkill.icon].component,
-                        { className: iconMap[selectedSkill.icon].className }
-                      )}
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold">{selectedSkill.name}</h3>
-                    <p className="text-gray-400 text-sm">
-                      {selectedSkill.category}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-300 mb-4">
-                  {selectedSkill.description}
-                </p>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-400">Proficiency</span>
-                  <span className="text-white font-medium">
-                    {selectedSkill.level}%
-                  </span>
-                </div>
-                <div className="h-3 w-full bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-purple-500 to-indigo-500" // Using a generic gradient for simplicity
-                    initial={{ width: 0 }}
-                    animate={{ width: `${selectedSkill.level}%` }}
-                    transition={{ duration: 1 }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <p className="text-sm uppercase tracking-[0.2em] text-cyan-100/70">Focus area</p>
+            <h3 className="mt-2 text-2xl font-semibold text-white">{selectedSkill.name}</h3>
+            <p className="mt-3 leading-7 text-slate-200/80">{selectedSkill.description}</p>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
   );

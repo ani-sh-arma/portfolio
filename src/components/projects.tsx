@@ -1,120 +1,67 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, Github, X } from "lucide-react";
-import { projects, Project } from "../data/projectsData";
+import { motion } from "framer-motion";
+import { ExternalLink, Github } from "lucide-react";
+import { projects } from "../data/projectsData";
 
 export function ProjectsSection() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
   return (
-    <div className="py-10 px-4 bg-transparent text-white">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-        {projects.map((project, index) => (
-          <motion.div
-            key={project.name}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.5 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={() => setSelectedProject(project)}
-            className="bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer"
-          >
-            {project.image && (
-              <img
-                src={project.image}
-                alt={`${project.name} preview`}
-                className="w-full h-48 object-cover"
-              />
-            )}
-            <div className="p-6">
-              <div className="flex items-center mb-3">
-                <span className="text-3xl mr-3">{project.icon}</span>
-                <h3 className="text-xl font-bold">{project.name}</h3>
-              </div>
-              <p className="text-gray-300 text-sm">{project.description}</p>
-            </div>
-          </motion.div>
-        ))}
+    <div className="section-shell">
+      <div className="section-header">
+        <p className="section-kicker">Projects</p>
+        <h2 className="section-title">Selected launches from my development lab</h2>
       </div>
 
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-            onClick={() => setSelectedProject(null)}
+      <div className="mt-10 grid gap-5 md:grid-cols-2">
+        {projects.map((project, index) => (
+          <motion.article
+            key={project.name}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.45, delay: index * 0.07 }}
+            className="project-card"
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 50 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 50 }}
-              className="relative bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-            >
-              <button
-                className="absolute top-4 right-4 text-gray-400 hover:text-white"
-                onClick={() => setSelectedProject(null)}
-              >
-                <X size={24} />
-              </button>
-              {selectedProject.image && (
-                <img
-                  src={selectedProject.image}
-                  alt={`${selectedProject.name} preview`}
-                  className="w-full h-64 object-cover"
-                />
-              )}
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <span className="text-4xl mr-4">{selectedProject.icon}</span>
-                  <div>
-                    <h3 className="text-2xl font-bold">
-                      {selectedProject.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-2 mt-1">
-                      {selectedProject.tech.map((tech) => (
-                        <span
-                          key={tech}
-                          className="px-2 py-1 text-xs font-semibold bg-purple-700 rounded-full"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-300 mb-6">
-                  {selectedProject.description}
-                </p>
-                <div className="flex justify-start space-x-6">
-                  <a
-                    href={selectedProject.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2"
-                  >
-                    <Github className="w-5 h-5" />
-                    <span>View Code</span>
-                  </a>
-                  {selectedProject.live !== "#" && (
-                    <a
-                      href={selectedProject.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                      <span>Live Demo</span>
-                    </a>
-                  )}
-                </div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-3xl">{project.icon}</p>
+                <h3 className="mt-4 text-2xl font-semibold text-white">{project.name}</h3>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+
+            <p className="mt-4 leading-7 text-slate-200/80">{project.description}</p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {project.tech.map((tech) => (
+                <span key={tech} className="project-tag">
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            <div className="mt-7 flex flex-wrap items-center gap-4">
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="project-link"
+              >
+                <Github size={16} />
+                <span>Source</span>
+              </a>
+              {project.live !== "#" ? (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="project-link"
+                >
+                  <ExternalLink size={16} />
+                  <span>Live</span>
+                </a>
+              ) : null}
+            </div>
+          </motion.article>
+        ))}
+      </div>
     </div>
   );
 }
