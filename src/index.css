@@ -39,9 +39,7 @@
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
     font-family: "Manrope", sans-serif;
-    background-image: radial-gradient(circle at 20% 20%, #0e2755 0%, transparent 40%),
-      radial-gradient(circle at 80% 10%, #4a215d 0%, transparent 36%),
-      linear-gradient(145deg, #020617 0%, #040b25 45%, #050713 100%);
+    background: linear-gradient(145deg, #020617 0%, #040b25 45%, #050713 100%);
   }
 
   a,

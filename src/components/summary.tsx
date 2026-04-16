@@ -23,7 +23,11 @@ export function SummarySection() {
       >
         <div>
           <p className="section-kicker">About</p>
-          <h1 className="hero-title mt-4">Crafting digital products with cosmic precision.</h1>
+          <h1 className="hero-title mt-4">{name}</h1>
+          <h2 className="mt-4 text-2xl font-semibold text-slate-100 md:text-3xl">{role}</h2>
+          <p className="mt-4 text-sm uppercase tracking-[0.24em] text-cyan-100/65">
+            Crafting digital products with cosmic precision.
+          </p>
           <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200/80 md:text-lg">
             {description}
           </p>
@@ -34,11 +38,6 @@ export function SummarySection() {
                 {item}
               </span>
             ))}
-          </div>
-
-          <div className="mt-10">
-            <p className="text-sm uppercase tracking-[0.25em] text-cyan-100/60">{name}</p>
-            <p className="mt-2 text-2xl font-semibold text-white">{role}</p>
           </div>
         </div>
 

@@ -213,6 +213,10 @@ export const skills: Skill[] = [
   },
 ];
 
+export const skillCategories = Array.from(
+  new Set(skills.map((skill) => skill.category))
+);
+
 export const iconMap: {
   [key: string]: { component: React.ElementType; className: string };
 } = {

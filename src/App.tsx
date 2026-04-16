@@ -6,7 +6,7 @@ import { ProjectsSection } from "./components/projects";
 import { ExperienceSection } from "./components/experience";
 import { ContactSection } from "./components/contact";
 import { projects } from "./data/projectsData";
-import { skills } from "./data/skillsData";
+import { skillCategories } from "./data/skillsData";
 import { experiences } from "./data/experienceData";
 
 const navItems = [
@@ -36,7 +36,7 @@ export default function App() {
     { label: "Projects shipped", value: projects.length.toString() },
     {
       label: "Core skills",
-      value: `${new Set(skills.map((skill) => skill.category)).size}+ categories`,
+      value: `${skillCategories.length}+ categories`,
     },
     { label: "Professional roles", value: experiences.length.toString() },
     { label: "Current focus", value: "Product-grade frontend systems" },

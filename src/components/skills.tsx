@@ -1,14 +1,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { skills, Skill, iconMap } from "../data/skillsData";
+import { skills, Skill, iconMap, skillCategories } from "../data/skillsData";
 
 export function SkillsSection() {
-  const categories = useMemo(
-    () => Array.from(new Set(skills.map((skill) => skill.category))),
-    []
-  );
-
-  const [activeCategory, setActiveCategory] = useState(categories[0]);
+  const [activeCategory, setActiveCategory] = useState(skillCategories[0]);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
   const filteredSkills = useMemo(
@@ -24,7 +19,7 @@ export function SkillsSection() {
       </div>
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {categories.map((category) => (
+        {skillCategories.map((category) => (
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
