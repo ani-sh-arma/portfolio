@@ -1,5 +1,8 @@
 ## Mobile App Plan for Portfolio Data Management
 
+- Add the twinkeling stars back all around the background
+
+
 __1. Mobile App Framework Selection:__ I recommend using __React Native__ for building the mobile application.
 
 - __Cross-Platform__: Allows you to build for both iOS and Android from a single codebase, saving development time.

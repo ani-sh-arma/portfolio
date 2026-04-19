@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Html, OrbitControls, Stars, useCursor } from "@react-three/drei";
+import {
+  Html,
+  OrbitControls,
+  Sparkles,
+  Stars,
+  useCursor,
+  useTexture,
+} from "@react-three/drei";
 import * as THREE from "three";
 import {
+  type CelestialSurface,
   defaultSelection,
   type SpaceNode,
   type SpaceSelection,
@@ -13,6 +21,32 @@ import {
 
 const minOrbitDistance = 4.8;
 const maxOrbitDistance = 68;
+const defaultMap =
+  "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg";
+const defaultNormalMap =
+  "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_normal_2048.jpg";
+const defaultRoughnessMap =
+  "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_specular_2048.jpg";
+
+function useCelestialTextureSet(surface?: CelestialSurface) {
+  const map = useTexture(surface?.map ?? defaultMap);
+  const normalMap = useTexture(surface?.normalMap ?? defaultNormalMap);
+  const roughnessMap = useTexture(surface?.roughnessMap ?? defaultRoughnessMap);
+  const emissiveMap = useTexture(
+    surface?.emissiveMap ?? surface?.map ?? defaultMap,
+  );
+
+  map.colorSpace = THREE.SRGBColorSpace;
+  emissiveMap.colorSpace = THREE.SRGBColorSpace;
+
+  [map, normalMap, roughnessMap, emissiveMap].forEach((texture) => {
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.anisotropy = 4;
+  });
+
+  return { map, normalMap, roughnessMap, emissiveMap };
+}
 
 function CameraPilot({
   target,
@@ -132,6 +166,7 @@ function SystemMesh({
 }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
+  const textures = useCelestialTextureSet(system.surface);
 
   const glowColor = system.color;
   const scale = active ? 1.16 : 1;
@@ -146,9 +181,15 @@ function SystemMesh({
       >
         <sphereGeometry args={[1.65, 42, 42]} />
         <meshStandardMaterial
+          map={textures.map}
+          normalMap={textures.normalMap}
+          roughnessMap={textures.roughnessMap}
+          emissiveMap={textures.emissiveMap}
           color={glowColor}
           emissive={glowColor}
-          emissiveIntensity={0.92}
+          emissiveIntensity={system.surface?.emissiveIntensity ?? 0.95}
+          roughness={system.surface?.roughness ?? 0.48}
+          metalness={system.surface?.metalness ?? 0.08}
         />
       </mesh>
 
@@ -159,7 +200,7 @@ function SystemMesh({
           center
           style={{ pointerEvents: "none" }}
         >
-          <div className="space-label space-label--system">
+          <div className="space-label space-label-card space-label--system">
             <p>{system.name}</p>
           </div>
         </Html>
@@ -181,6 +222,7 @@ function NodeMesh({
 }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
+  const textures = useCelestialTextureSet(node.surface);
 
   return (
     <group position={node.position}>
@@ -192,9 +234,15 @@ function NodeMesh({
       >
         <sphereGeometry args={[0.48, 24, 24]} />
         <meshStandardMaterial
+          map={textures.map}
+          normalMap={textures.normalMap}
+          roughnessMap={textures.roughnessMap}
+          emissiveMap={textures.emissiveMap}
           color={node.color}
           emissive={node.color}
-          emissiveIntensity={0.65}
+          emissiveIntensity={node.surface?.emissiveIntensity ?? 0.4}
+          roughness={node.surface?.roughness ?? 0.72}
+          metalness={node.surface?.metalness ?? 0.05}
         />
       </mesh>
 
@@ -212,7 +260,7 @@ function NodeMesh({
           center
           style={{ pointerEvents: "none" }}
         >
-          <div className="space-label space-label--node">
+          <div className="space-label space-label-card space-label--node">
             <p>{node.name}</p>
           </div>
         </Html>
@@ -260,11 +308,31 @@ function UniverseScene({
       <Stars
         radius={150}
         depth={90}
-        count={5600}
+        count={6900}
         factor={4.8}
         saturation={0}
         fade
-        speed={reducedMotion ? 0.08 : 0.4}
+        speed={reducedMotion ? 0.05 : 0.24}
+      />
+
+      <Sparkles
+        count={360}
+        scale={[170, 110, 170]}
+        size={2.3}
+        speed={reducedMotion ? 0.08 : 0.22}
+        opacity={0.9}
+        noise={1.05}
+        color="#dbeeff"
+      />
+
+      <Sparkles
+        count={210}
+        scale={[150, 95, 150]}
+        size={3.8}
+        speed={reducedMotion ? 0.05 : 0.14}
+        opacity={0.48}
+        noise={0.72}
+        color="#9cd7ff"
       />
 
       {spaceSystems.map((system) => (

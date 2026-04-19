@@ -27,7 +27,6 @@
     --ring: 191 100% 63%;
     --radius: 1rem;
 
-    --grid-line: rgba(124, 180, 255, 0.12);
     --hud-bg: rgba(8, 13, 30, 0.66);
     --hud-border: rgba(137, 182, 255, 0.28);
     --hud-text-muted: rgba(202, 226, 255, 0.7);
@@ -59,19 +58,6 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-}
-
-.space-shell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 80px 80px;
-  opacity: 0.3;
-  mask-image: radial-gradient(circle at center, black 35%, transparent 92%);
-  pointer-events: none;
-  z-index: 2;
 }
 
 .space-canvas {
@@ -331,15 +317,33 @@
 .space-label {
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.06em;
   text-align: center;
   color: #e6f5ff;
   text-shadow: 0 0 18px rgba(72, 197, 255, 0.85);
 }
 
+.space-label-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 142px;
+  max-width: 240px;
+  padding: 0.42rem 0.62rem;
+  border-radius: 10px;
+  border: 1px solid rgba(149, 214, 255, 0.58);
+  background: linear-gradient(140deg, rgba(8, 16, 35, 0.86), rgba(22, 54, 90, 0.74));
+  box-shadow: 0 10px 18px rgba(5, 11, 25, 0.46), inset 0 0 16px rgba(129, 221, 255, 0.22);
+  backdrop-filter: blur(5px);
+}
+
 .space-label p {
   margin: 0;
-  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: max(15px, 0.95rem);
+  line-height: 1.2;
 }
 
 .space-label span {
@@ -348,13 +352,13 @@
 }
 
 .space-label--system p {
-  font-size: 0.72rem;
+  font-size: max(16px, 1.03rem);
   font-weight: 600;
 }
 
 .space-label--node p {
-  font-size: 0.58rem;
-  opacity: 0.9;
+  font-size: max(15px, 0.95rem);
+  opacity: 0.96;
 }
 
 @media (max-width: 1150px) {
