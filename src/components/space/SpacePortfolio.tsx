@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Html, Line, OrbitControls, Stars, useCursor } from "@react-three/drei";
+import { Html, OrbitControls, Stars, useCursor } from "@react-three/drei";
 import * as THREE from "three";
 import {
   defaultSelection,
@@ -13,9 +13,6 @@ import {
 
 const minOrbitDistance = 4.8;
 const maxOrbitDistance = 68;
-
-const toVec3 = (position: Vec3) =>
-  new THREE.Vector3(position[0], position[1], position[2]);
 
 function CameraPilot({
   target,
@@ -125,17 +122,19 @@ function CameraPilot({
 function SystemMesh({
   system,
   active,
+  showLabel,
   onSelect,
 }: {
   system: (typeof spaceSystems)[number];
   active: boolean;
+  showLabel: boolean;
   onSelect: (systemId: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   useCursor(hovered);
 
   const glowColor = system.color;
-  const scale = active ? 1.18 : 1;
+  const scale = active ? 1.16 : 1;
 
   return (
     <group position={system.position}>
@@ -145,29 +144,26 @@ function SystemMesh({
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
-        <sphereGeometry args={[1.1, 36, 36]} />
+        <sphereGeometry args={[1.65, 42, 42]} />
         <meshStandardMaterial
           color={glowColor}
           emissive={glowColor}
-          emissiveIntensity={0.8}
+          emissiveIntensity={0.92}
         />
       </mesh>
 
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.6, active ? 2.9 : 2.5, 80]} />
-        <meshBasicMaterial
-          color={glowColor}
-          transparent
-          opacity={active ? 0.6 : 0.26}
-        />
-      </mesh>
-
-      <Html distanceFactor={12} center style={{ pointerEvents: "none" }}>
-        <div className="space-label">
-          <p>{system.name}</p>
-          <span>{system.subtitle}</span>
-        </div>
-      </Html>
+      {showLabel ? (
+        <Html
+          position={[0, 2.45, 0]}
+          distanceFactor={11}
+          center
+          style={{ pointerEvents: "none" }}
+        >
+          <div className="space-label space-label--system">
+            <p>{system.name}</p>
+          </div>
+        </Html>
+      ) : null}
     </group>
   );
 }
@@ -175,10 +171,12 @@ function SystemMesh({
 function NodeMesh({
   node,
   active,
+  showLabel,
   onSelect,
 }: {
   node: SpaceNode;
   active: boolean;
+  showLabel: boolean;
   onSelect: (nodeId: string) => void;
 }) {
   const [hovered, setHovered] = useState(false);
@@ -205,6 +203,19 @@ function NodeMesh({
           <ringGeometry args={[0.62, 0.84, 64]} />
           <meshBasicMaterial color={node.color} transparent opacity={0.7} />
         </mesh>
+      ) : null}
+
+      {showLabel ? (
+        <Html
+          position={[0, 0.92, 0]}
+          distanceFactor={9.5}
+          center
+          style={{ pointerEvents: "none" }}
+        >
+          <div className="space-label space-label--node">
+            <p>{node.name}</p>
+          </div>
+        </Html>
       ) : null}
     </group>
   );
@@ -261,24 +272,19 @@ function UniverseScene({
           <SystemMesh
             system={system}
             active={selection.systemId === system.id && !selection.nodeId}
+            showLabel={selection.systemId !== system.id}
             onSelect={onSelectSystem}
           />
 
           {system.nodes.map((node) => (
             <group key={node.id}>
-              <Line
-                points={[toVec3(system.position), toVec3(node.position)]}
-                color="#5d8fff"
-                transparent
-                opacity={selection.systemId === system.id ? 0.32 : 0.12}
-                lineWidth={1}
-              />
               <NodeMesh
                 node={node}
                 active={
                   selection.systemId === system.id &&
                   selection.nodeId === node.id
                 }
+                showLabel={selection.systemId === system.id}
                 onSelect={(nodeId) => onSelectNode(system.id, nodeId)}
               />
             </group>

@@ -56,7 +56,7 @@ const skillNodes: SpaceNode[] = skillCategories.map((category, index) => {
     kind: "planet",
     color: "#5eead4",
     position: createOrbitPosition(
-      [9, 4, -18],
+      [16, 4, -14],
       index,
       skillCategories.length,
       5.8,
@@ -79,7 +79,7 @@ const projectNodes: SpaceNode[] = projects.map((project, index) => ({
   name: project.name,
   kind: "planet",
   color: "#60a5fa",
-  position: createOrbitPosition([26, -1, 6], index, projects.length, 7.5, 2.1),
+  position: createOrbitPosition([20, -2, 10], index, projects.length, 7.5, 2.1),
   description: project.description,
   details: [
     `Tech stack: ${project.tech.join(", ")}`,
@@ -97,7 +97,7 @@ const experienceNodes: SpaceNode[] = experiences.map((experience, index) => ({
   kind: "station",
   color: "#fbbf24",
   position: createOrbitPosition(
-    [-8, -4, 15],
+    [-17, -3, 12],
     index,
     experiences.length,
     5.2,
@@ -114,7 +114,7 @@ const socialNodes: SpaceNode[] = contactInfo.socialLinks.map(
     kind: "beacon",
     color: "#f472b6",
     position: createOrbitPosition(
-      [18, 8, 17],
+      [8, 8, 20],
       index,
       contactInfo.socialLinks.length,
       4.3,
@@ -132,7 +132,7 @@ export const spaceSystems: SpaceSystem[] = [
     name: "Origin Prime",
     subtitle: "Identity Star",
     color: "#67e8f9",
-    position: [-18, 2, -8],
+    position: [0, 0, 0],
     description: "Core profile and mission briefing.",
     nodes: [
       {
@@ -140,7 +140,7 @@ export const spaceSystems: SpaceSystem[] = [
         name: summaryInfo.name,
         kind: "planet",
         color: "#22d3ee",
-        position: [-13.5, 3.4, -5.5],
+        position: [3.8, 1.9, 2.4],
         description: summaryInfo.role,
         details: [
           summaryInfo.description,
@@ -155,7 +155,7 @@ export const spaceSystems: SpaceSystem[] = [
     name: "Skill Constellation",
     subtitle: "Technical Atlas",
     color: "#5eead4",
-    position: [9, 4, -18],
+    position: [16, 4, -14],
     description: "Clusters of tools, frameworks, and engineering depth.",
     nodes: skillNodes,
   },
@@ -164,7 +164,7 @@ export const spaceSystems: SpaceSystem[] = [
     name: "Launch Sector",
     subtitle: "Project Planetarium",
     color: "#60a5fa",
-    position: [26, -1, 6],
+    position: [20, -2, 10],
     description: "Interactive catalog of deployed and experimental missions.",
     nodes: projectNodes,
   },
@@ -173,7 +173,7 @@ export const spaceSystems: SpaceSystem[] = [
     name: "Career Spiral",
     subtitle: "Timeline Orbit",
     color: "#fbbf24",
-    position: [-8, -4, 15],
+    position: [-17, -3, 12],
     description: "Professional trajectory across teams and products.",
     nodes: experienceNodes,
   },
@@ -182,7 +182,7 @@ export const spaceSystems: SpaceSystem[] = [
     name: "Communication Array",
     subtitle: "Contact Gateway",
     color: "#f472b6",
-    position: [18, 8, 17],
+    position: [8, 8, 20],
     description: `Direct uplink: ${contactInfo.email}`,
     nodes: [
       {
@@ -190,7 +190,7 @@ export const spaceSystems: SpaceSystem[] = [
         name: "Email Dock",
         kind: "station",
         color: "#f9a8d4",
-        position: [21.2, 8.7, 20.1],
+        position: [11.3, 8.7, 22.4],
         description:
           "Primary contact channel for opportunities and collaborations.",
         details: [contactInfo.email, "Response mode: Professional and prompt"],
