@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Html,
   OrbitControls,
@@ -10,6 +10,7 @@ import {
   useTexture,
 } from "@react-three/drei";
 import * as THREE from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import {
   type CelestialSurface,
   defaultSelection,
@@ -57,7 +58,7 @@ function CameraPilot({
   focusKey: string;
   reducedMotion: boolean;
 }) {
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const desiredPositionRef = useRef(new THREE.Vector3());
   const desiredTargetRef = useRef(new THREE.Vector3());
   const autoNavigatingRef = useRef(true);
@@ -193,6 +194,10 @@ function SystemMesh({
         />
       </mesh>
 
+      {active ? (
+        <FocusRing innerRadius={2.25} outerRadius={2.9} color={system.color} />
+      ) : null}
+
       {showLabel ? (
         <Html
           position={[0, 2.45, 0]}
@@ -247,10 +252,7 @@ function NodeMesh({
       </mesh>
 
       {active ? (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.62, 0.84, 64]} />
-          <meshBasicMaterial color={node.color} transparent opacity={0.7} />
-        </mesh>
+        <FocusRing innerRadius={0.64} outerRadius={0.9} color={node.color} />
       ) : null}
 
       {showLabel ? (
@@ -265,6 +267,88 @@ function NodeMesh({
           </div>
         </Html>
       ) : null}
+    </group>
+  );
+}
+
+function FocusRing({
+  innerRadius,
+  outerRadius,
+  color,
+}: {
+  innerRadius: number;
+  outerRadius: number;
+  color: string;
+}) {
+  return (
+    <group rotation={[Math.PI / 2.8, 0, Math.PI / 9]}>
+      <mesh renderOrder={3}>
+        <ringGeometry args={[innerRadius, outerRadius, 96]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.66}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]} renderOrder={3}>
+        <ringGeometry args={[innerRadius, outerRadius, 96]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.25}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function CameraBoundStarfield({ reducedMotion }: { reducedMotion: boolean }) {
+  const starfieldRef = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (!starfieldRef.current) {
+      return;
+    }
+
+    starfieldRef.current.position.copy(camera.position);
+  });
+
+  return (
+    <group ref={starfieldRef}>
+      <Stars
+        radius={120}
+        depth={90}
+        count={9800}
+        factor={4.4}
+        saturation={0}
+        fade
+        speed={reducedMotion ? 0.06 : 0.3}
+      />
+
+      <Sparkles
+        count={560}
+        scale={[170, 120, 170]}
+        size={2.3}
+        speed={reducedMotion ? 0.08 : 0.24}
+        opacity={0.9}
+        noise={1.05}
+        color="#dbeeff"
+      />
+
+      <Sparkles
+        count={320}
+        scale={[165, 110, 165]}
+        size={3.6}
+        speed={reducedMotion ? 0.05 : 0.16}
+        opacity={0.5}
+        noise={0.72}
+        color="#9cd7ff"
+      />
     </group>
   );
 }
@@ -305,35 +389,7 @@ function UniverseScene({
       <directionalLight position={[8, 12, 7]} intensity={0.9} color="#bde6ff" />
       <pointLight position={[-24, 14, -10]} intensity={2.1} color="#34d3ff" />
 
-      <Stars
-        radius={150}
-        depth={90}
-        count={6900}
-        factor={4.8}
-        saturation={0}
-        fade
-        speed={reducedMotion ? 0.05 : 0.24}
-      />
-
-      <Sparkles
-        count={360}
-        scale={[170, 110, 170]}
-        size={2.3}
-        speed={reducedMotion ? 0.08 : 0.22}
-        opacity={0.9}
-        noise={1.05}
-        color="#dbeeff"
-      />
-
-      <Sparkles
-        count={210}
-        scale={[150, 95, 150]}
-        size={3.8}
-        speed={reducedMotion ? 0.05 : 0.14}
-        opacity={0.48}
-        noise={0.72}
-        color="#9cd7ff"
-      />
+      <CameraBoundStarfield reducedMotion={reducedMotion} />
 
       {spaceSystems.map((system) => (
         <group key={system.id}>
@@ -374,6 +430,36 @@ export function SpacePortfolio() {
   const [selection, setSelection] = useState<SpaceSelection>(defaultSelection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [mobileInspectorOpen, setMobileInspectorOpen] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const media = window.matchMedia("(max-width: 780px)");
+    const syncViewportState = (isMobile: boolean) => {
+      setIsMobileViewport(isMobile);
+      if (!isMobile) {
+        setMobileInspectorOpen(true);
+      }
+    };
+
+    syncViewportState(media.matches);
+    if (media.matches) {
+      setMobileInspectorOpen(false);
+    }
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      syncViewportState(event.matches);
+    };
+
+    media.addEventListener("change", handleChange);
+    return () => {
+      media.removeEventListener("change", handleChange);
+    };
+  }, []);
 
   const selectedSystem =
     spaceSystems.find((system) => system.id === selection.systemId) ??
@@ -433,51 +519,67 @@ export function SpacePortfolio() {
           </div>
         </aside>
 
-        <section className="data-inspector">
-          <p className="hud-label">Telemetry</p>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={
-                selection.nodeId
-                  ? `${selection.systemId}-${selection.nodeId}`
-                  : selection.systemId
-              }
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.28 }}
-              className="telemetry-card"
-            >
-              <h2>{selectedNode?.name ?? selectedSystem.name}</h2>
-              <p className="telemetry-subtitle">
-                {selectedNode
-                  ? selectedNode.kind.toUpperCase()
-                  : selectedSystem.subtitle.toUpperCase()}
-              </p>
-              <p className="telemetry-description">
-                {selectedNode?.description ?? selectedSystem.description}
-              </p>
-              <ul className="telemetry-list">
-                {(
-                  selectedNode?.details ??
-                  selectedSystem.nodes.map((node) => node.name)
-                ).map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
+        <section
+          className={`data-inspector ${isMobileViewport && !mobileInspectorOpen ? "data-inspector--collapsed" : ""}`}
+        >
+          <div className="data-inspector-header">
+            <p className="hud-label">Telemetry</p>
+            {isMobileViewport ? (
+              <button
+                type="button"
+                className="inspector-toggle"
+                aria-expanded={mobileInspectorOpen}
+                onClick={() => setMobileInspectorOpen((current) => !current)}
+              >
+                {mobileInspectorOpen ? "Collapse" : "Expand"}
+              </button>
+            ) : null}
+          </div>
+          {!isMobileViewport || mobileInspectorOpen ? (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={
+                  selection.nodeId
+                    ? `${selection.systemId}-${selection.nodeId}`
+                    : selection.systemId
+                }
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.28 }}
+                className="telemetry-card data-inspector-content"
+              >
+                <h2>{selectedNode?.name ?? selectedSystem.name}</h2>
+                <p className="telemetry-subtitle">
+                  {selectedNode
+                    ? selectedNode.kind.toUpperCase()
+                    : selectedSystem.subtitle.toUpperCase()}
+                </p>
+                <p className="telemetry-description">
+                  {selectedNode?.description ?? selectedSystem.description}
+                </p>
+                <ul className="telemetry-list">
+                  {(
+                    selectedNode?.details ??
+                    selectedSystem.nodes.map((node) => node.name)
+                  ).map((line) => (
+                    <li key={line}>{line}</li>
+                  ))}
+                </ul>
 
-              {selectedNode?.link ? (
-                <a
-                  href={selectedNode.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="telemetry-link"
-                >
-                  Open Transmission
-                </a>
-              ) : null}
-            </motion.div>
-          </AnimatePresence>
+                {selectedNode?.link ? (
+                  <a
+                    href={selectedNode.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="telemetry-link"
+                  >
+                    Open Transmission
+                  </a>
+                ) : null}
+              </motion.div>
+            </AnimatePresence>
+          ) : null}
         </section>
 
         <button
