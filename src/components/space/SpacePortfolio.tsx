@@ -21,6 +21,8 @@ import {
 
 const minOrbitDistance = 4.8;
 const maxOrbitDistance = 68;
+const inspectorTapSlopPx = 6;
+const inspectorDragToggleThresholdPx = 28;
 const defaultMap =
   "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg";
 const defaultNormalMap =
@@ -514,7 +516,7 @@ export function SpacePortfolio() {
     }
     const delta = event.clientY - inspectorDragStartYRef.current;
     inspectorDragDeltaYRef.current = delta;
-    if (Math.abs(delta) > 6) {
+    if (Math.abs(delta) > inspectorTapSlopPx) {
       inspectorIgnoreTapRef.current = true;
     }
   };
@@ -528,12 +530,12 @@ export function SpacePortfolio() {
     inspectorDragStartYRef.current = null;
     inspectorDragDeltaYRef.current = 0;
 
-    if (dragDelta > 28) {
+    if (dragDelta > inspectorDragToggleThresholdPx) {
       setMobileInspectorOpen(false);
       return;
     }
 
-    if (dragDelta < -28) {
+    if (dragDelta < -inspectorDragToggleThresholdPx) {
       setMobileInspectorOpen(true);
     }
   };
@@ -605,6 +607,13 @@ export function SpacePortfolio() {
             tabIndex={isMobileViewport ? 0 : undefined}
             aria-expanded={isMobileViewport ? mobileInspectorOpen : undefined}
             aria-controls={isMobileViewport ? "telemetry-panel" : undefined}
+            aria-label={
+              isMobileViewport
+                ? mobileInspectorOpen
+                  ? "Telemetry panel expanded. Activate to collapse."
+                  : "Telemetry panel collapsed. Activate to expand."
+                : undefined
+            }
             onClick={handleInspectorHeaderClick}
             onPointerDown={handleInspectorHeaderPointerDown}
             onPointerMove={handleInspectorHeaderPointerMove}
@@ -612,10 +621,10 @@ export function SpacePortfolio() {
             onPointerCancel={handleInspectorHeaderPointerEnd}
             onPointerLeave={handleInspectorHeaderPointerEnd}
             onKeyDown={(event) => {
-              if (
-                isMobileViewport &&
-                (event.key === "Enter" || event.key === " " || event.key === "Spacebar")
-              ) {
+              if (!isMobileViewport) {
+                return;
+              }
+              if (event.key === "Enter" || event.code === "Space") {
                 event.preventDefault();
                 toggleMobileInspector();
               }
@@ -623,9 +632,7 @@ export function SpacePortfolio() {
           >
             <p className="hud-label">Telemetry</p>
             {isMobileViewport ? (
-              <span className="inspector-toggle">
-                {mobileInspectorOpen ? "Pull down" : "Pull up"}
-              </span>
+              <span className="inspector-toggle">{mobileInspectorOpen ? "Collapse" : "Expand"}</span>
             ) : null}
           </div>
           <div id="telemetry-panel">
