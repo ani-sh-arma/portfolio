@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ElementRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Html,
   OrbitControls,
@@ -21,6 +21,8 @@ import {
 
 const minOrbitDistance = 4.8;
 const maxOrbitDistance = 68;
+const inspectorTapSlopPx = 6;
+const inspectorDragToggleThresholdPx = 28;
 const defaultMap =
   "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg";
 const defaultNormalMap =
@@ -57,7 +59,7 @@ function CameraPilot({
   focusKey: string;
   reducedMotion: boolean;
 }) {
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef<ElementRef<typeof OrbitControls> | null>(null);
   const desiredPositionRef = useRef(new THREE.Vector3());
   const desiredTargetRef = useRef(new THREE.Vector3());
   const autoNavigatingRef = useRef(true);
@@ -193,6 +195,10 @@ function SystemMesh({
         />
       </mesh>
 
+      {active ? (
+        <FocusRing innerRadius={2.25} outerRadius={2.9} color={system.color} />
+      ) : null}
+
       {showLabel ? (
         <Html
           position={[0, 2.45, 0]}
@@ -247,10 +253,7 @@ function NodeMesh({
       </mesh>
 
       {active ? (
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.62, 0.84, 64]} />
-          <meshBasicMaterial color={node.color} transparent opacity={0.7} />
-        </mesh>
+        <FocusRing innerRadius={0.64} outerRadius={0.9} color={node.color} />
       ) : null}
 
       {showLabel ? (
@@ -265,6 +268,88 @@ function NodeMesh({
           </div>
         </Html>
       ) : null}
+    </group>
+  );
+}
+
+function FocusRing({
+  innerRadius,
+  outerRadius,
+  color,
+}: {
+  innerRadius: number;
+  outerRadius: number;
+  color: string;
+}) {
+  return (
+    <group rotation={[Math.PI / 2.8, 0, Math.PI / 9]}>
+      <mesh renderOrder={3}>
+        <ringGeometry args={[innerRadius, outerRadius, 96]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.66}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]} renderOrder={3}>
+        <ringGeometry args={[innerRadius, outerRadius, 96]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.25}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function CameraBoundStarfield({ reducedMotion }: { reducedMotion: boolean }) {
+  const starfieldRef = useRef<THREE.Group | null>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (!starfieldRef.current) {
+      return;
+    }
+
+    starfieldRef.current.position.copy(camera.position);
+  });
+
+  return (
+    <group ref={starfieldRef}>
+      <Stars
+        radius={120}
+        depth={90}
+        count={9800}
+        factor={4.4}
+        saturation={0}
+        fade
+        speed={reducedMotion ? 0.06 : 0.3}
+      />
+
+      <Sparkles
+        count={560}
+        scale={[170, 120, 170]}
+        size={2.3}
+        speed={reducedMotion ? 0.08 : 0.24}
+        opacity={0.9}
+        noise={1.05}
+        color="#dbeeff"
+      />
+
+      <Sparkles
+        count={320}
+        scale={[165, 110, 165]}
+        size={3.6}
+        speed={reducedMotion ? 0.05 : 0.16}
+        opacity={0.5}
+        noise={0.72}
+        color="#9cd7ff"
+      />
     </group>
   );
 }
@@ -305,35 +390,7 @@ function UniverseScene({
       <directionalLight position={[8, 12, 7]} intensity={0.9} color="#bde6ff" />
       <pointLight position={[-24, 14, -10]} intensity={2.1} color="#34d3ff" />
 
-      <Stars
-        radius={150}
-        depth={90}
-        count={6900}
-        factor={4.8}
-        saturation={0}
-        fade
-        speed={reducedMotion ? 0.05 : 0.24}
-      />
-
-      <Sparkles
-        count={360}
-        scale={[170, 110, 170]}
-        size={2.3}
-        speed={reducedMotion ? 0.08 : 0.22}
-        opacity={0.9}
-        noise={1.05}
-        color="#dbeeff"
-      />
-
-      <Sparkles
-        count={210}
-        scale={[150, 95, 150]}
-        size={3.8}
-        speed={reducedMotion ? 0.05 : 0.14}
-        opacity={0.48}
-        noise={0.72}
-        color="#9cd7ff"
-      />
+      <CameraBoundStarfield reducedMotion={reducedMotion} />
 
       {spaceSystems.map((system) => (
         <group key={system.id}>
@@ -374,6 +431,53 @@ export function SpacePortfolio() {
   const [selection, setSelection] = useState<SpaceSelection>(defaultSelection);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [mobileInspectorOpen, setMobileInspectorOpen] = useState(true);
+  const inspectorDragStartYRef = useRef<number | null>(null);
+  const inspectorDragDeltaYRef = useRef(0);
+  const inspectorIgnoreTapRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const media = window.matchMedia("(max-width: 780px)");
+    const syncViewportState = (
+      isMobile: boolean,
+      collapseInspectorOnMobile = false,
+    ) => {
+      setIsMobileViewport(isMobile);
+      if (!isMobile) {
+        setMobileInspectorOpen(true);
+        return;
+      }
+
+      if (collapseInspectorOnMobile) {
+        setMobileInspectorOpen(false);
+      }
+    };
+
+    syncViewportState(media.matches, true);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      syncViewportState(event.matches);
+    };
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", handleChange);
+    } else {
+      media.addListener(handleChange);
+    }
+
+    return () => {
+      if (typeof media.removeEventListener === "function") {
+        media.removeEventListener("change", handleChange);
+      } else {
+        media.removeListener(handleChange);
+      }
+    };
+  }, []);
 
   const selectedSystem =
     spaceSystems.find((system) => system.id === selection.systemId) ??
@@ -384,6 +488,67 @@ export function SpacePortfolio() {
 
   const handleManualSelect = (nextSelection: SpaceSelection) => {
     setSelection(nextSelection);
+  };
+
+  const toggleMobileInspector = () => {
+    if (!isMobileViewport) {
+      return;
+    }
+    setMobileInspectorOpen((current) => !current);
+  };
+
+  const handleInspectorHeaderPointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (!isMobileViewport) {
+      return;
+    }
+    inspectorDragStartYRef.current = event.clientY;
+    inspectorDragDeltaYRef.current = 0;
+    inspectorIgnoreTapRef.current = false;
+  };
+
+  const handleInspectorHeaderPointerMove = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (!isMobileViewport || inspectorDragStartYRef.current === null) {
+      return;
+    }
+    const delta = event.clientY - inspectorDragStartYRef.current;
+    inspectorDragDeltaYRef.current = delta;
+    if (Math.abs(delta) > inspectorTapSlopPx) {
+      inspectorIgnoreTapRef.current = true;
+    }
+  };
+
+  const handleInspectorHeaderPointerEnd = () => {
+    if (!isMobileViewport || inspectorDragStartYRef.current === null) {
+      return;
+    }
+
+    const dragDelta = inspectorDragDeltaYRef.current;
+    inspectorDragStartYRef.current = null;
+    inspectorDragDeltaYRef.current = 0;
+
+    if (dragDelta > inspectorDragToggleThresholdPx) {
+      setMobileInspectorOpen(false);
+      return;
+    }
+
+    if (dragDelta < -inspectorDragToggleThresholdPx) {
+      setMobileInspectorOpen(true);
+    }
+  };
+
+  const handleInspectorHeaderClick = () => {
+    if (!isMobileViewport) {
+      return;
+    }
+    if (inspectorIgnoreTapRef.current) {
+      inspectorIgnoreTapRef.current = false;
+      return;
+    }
+    toggleMobileInspector();
   };
 
   return (
@@ -433,51 +598,90 @@ export function SpacePortfolio() {
           </div>
         </aside>
 
-        <section className="data-inspector">
-          <p className="hud-label">Telemetry</p>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={
-                selection.nodeId
-                  ? `${selection.systemId}-${selection.nodeId}`
-                  : selection.systemId
+        <section
+          className={`data-inspector ${isMobileViewport && !mobileInspectorOpen ? "data-inspector--collapsed" : ""}`}
+        >
+          <div
+            className={`data-inspector-header ${isMobileViewport ? "data-inspector-header--interactive" : ""}`}
+            role={isMobileViewport ? "button" : undefined}
+            tabIndex={isMobileViewport ? 0 : undefined}
+            aria-expanded={isMobileViewport ? mobileInspectorOpen : undefined}
+            aria-controls={isMobileViewport ? "telemetry-panel" : undefined}
+            aria-label={
+              isMobileViewport
+                ? mobileInspectorOpen
+                  ? "Telemetry panel expanded. Activate to collapse."
+                  : "Telemetry panel collapsed. Activate to expand."
+                : undefined
+            }
+            onClick={handleInspectorHeaderClick}
+            onPointerDown={handleInspectorHeaderPointerDown}
+            onPointerMove={handleInspectorHeaderPointerMove}
+            onPointerUp={handleInspectorHeaderPointerEnd}
+            onPointerCancel={handleInspectorHeaderPointerEnd}
+            onPointerLeave={handleInspectorHeaderPointerEnd}
+            onKeyDown={(event) => {
+              if (!isMobileViewport) {
+                return;
               }
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.28 }}
-              className="telemetry-card"
-            >
-              <h2>{selectedNode?.name ?? selectedSystem.name}</h2>
-              <p className="telemetry-subtitle">
-                {selectedNode
-                  ? selectedNode.kind.toUpperCase()
-                  : selectedSystem.subtitle.toUpperCase()}
-              </p>
-              <p className="telemetry-description">
-                {selectedNode?.description ?? selectedSystem.description}
-              </p>
-              <ul className="telemetry-list">
-                {(
-                  selectedNode?.details ??
-                  selectedSystem.nodes.map((node) => node.name)
-                ).map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
-
-              {selectedNode?.link ? (
-                <a
-                  href={selectedNode.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="telemetry-link"
+              if (event.key === "Enter" || event.code === "Space") {
+                event.preventDefault();
+                toggleMobileInspector();
+              }
+            }}
+          >
+            <p className="hud-label">Telemetry</p>
+            {isMobileViewport ? (
+              <span className="inspector-toggle">{mobileInspectorOpen ? "Collapse" : "Expand"}</span>
+            ) : null}
+          </div>
+          <div id="telemetry-panel">
+            {!isMobileViewport || mobileInspectorOpen ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={
+                    selection.nodeId
+                      ? `${selection.systemId}-${selection.nodeId}`
+                      : selection.systemId
+                  }
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.28 }}
+                  className="telemetry-card data-inspector-content"
                 >
-                  Open Transmission
-                </a>
-              ) : null}
-            </motion.div>
-          </AnimatePresence>
+                  <h2>{selectedNode?.name ?? selectedSystem.name}</h2>
+                  <p className="telemetry-subtitle">
+                    {selectedNode
+                      ? selectedNode.kind.toUpperCase()
+                      : selectedSystem.subtitle.toUpperCase()}
+                  </p>
+                  <p className="telemetry-description">
+                    {selectedNode?.description ?? selectedSystem.description}
+                  </p>
+                  <ul className="telemetry-list">
+                    {(
+                      selectedNode?.details ??
+                      selectedSystem.nodes.map((node) => node.name)
+                    ).map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+
+                  {selectedNode?.link ? (
+                    <a
+                      href={selectedNode.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="telemetry-link"
+                    >
+                      Open Transmission
+                    </a>
+                  ) : null}
+                </motion.div>
+              </AnimatePresence>
+            ) : null}
+          </div>
         </section>
 
         <button
