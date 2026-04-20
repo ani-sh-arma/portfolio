@@ -356,9 +356,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-   min-width: 164px;
-   max-width: 260px;
-   padding: 0.48rem 0.72rem;
+  min-width: 164px;
+  max-width: 260px;
+  padding: 0.48rem 0.72rem;
   border-radius: 10px;
   border: 1px solid rgba(149, 214, 255, 0.58);
   background: linear-gradient(140deg, rgba(8, 16, 35, 0.86), rgba(22, 54, 90, 0.74));

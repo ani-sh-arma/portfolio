@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ElementRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
@@ -10,7 +10,6 @@ import {
   useTexture,
 } from "@react-three/drei";
 import * as THREE from "three";
-import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import {
   type CelestialSurface,
   defaultSelection,
@@ -58,7 +57,7 @@ function CameraPilot({
   focusKey: string;
   reducedMotion: boolean;
 }) {
-  const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  const controlsRef = useRef<ElementRef<typeof OrbitControls> | null>(null);
   const desiredPositionRef = useRef(new THREE.Vector3());
   const desiredTargetRef = useRef(new THREE.Vector3());
   const autoNavigatingRef = useRef(true);
@@ -307,7 +306,7 @@ function FocusRing({
 }
 
 function CameraBoundStarfield({ reducedMotion }: { reducedMotion: boolean }) {
-  const starfieldRef = useRef<THREE.Group>(null);
+  const starfieldRef = useRef<THREE.Group | null>(null);
   const { camera } = useThree();
 
   useFrame(() => {
@@ -460,9 +459,18 @@ export function SpacePortfolio() {
       syncViewportState(event.matches);
     };
 
-    media.addEventListener("change", handleChange);
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", handleChange);
+    } else {
+      media.addListener(handleChange);
+    }
+
     return () => {
-      media.removeEventListener("change", handleChange);
+      if (typeof media.removeEventListener === "function") {
+        media.removeEventListener("change", handleChange);
+      } else {
+        media.removeListener(handleChange);
+      }
     };
   }, []);
 
@@ -534,57 +542,60 @@ export function SpacePortfolio() {
                 type="button"
                 className="inspector-toggle"
                 aria-expanded={mobileInspectorOpen}
+                aria-controls="telemetry-panel"
                 onClick={() => setMobileInspectorOpen((current) => !current)}
               >
                 {mobileInspectorOpen ? "Collapse" : "Expand"}
               </button>
             ) : null}
           </div>
-          {!isMobileViewport || mobileInspectorOpen ? (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={
-                  selection.nodeId
-                    ? `${selection.systemId}-${selection.nodeId}`
-                    : selection.systemId
-                }
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.28 }}
-                className="telemetry-card data-inspector-content"
-              >
-                <h2>{selectedNode?.name ?? selectedSystem.name}</h2>
-                <p className="telemetry-subtitle">
-                  {selectedNode
-                    ? selectedNode.kind.toUpperCase()
-                    : selectedSystem.subtitle.toUpperCase()}
-                </p>
-                <p className="telemetry-description">
-                  {selectedNode?.description ?? selectedSystem.description}
-                </p>
-                <ul className="telemetry-list">
-                  {(
-                    selectedNode?.details ??
-                    selectedSystem.nodes.map((node) => node.name)
-                  ).map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ul>
+          <div id="telemetry-panel">
+            {!isMobileViewport || mobileInspectorOpen ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={
+                    selection.nodeId
+                      ? `${selection.systemId}-${selection.nodeId}`
+                      : selection.systemId
+                  }
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.28 }}
+                  className="telemetry-card data-inspector-content"
+                >
+                  <h2>{selectedNode?.name ?? selectedSystem.name}</h2>
+                  <p className="telemetry-subtitle">
+                    {selectedNode
+                      ? selectedNode.kind.toUpperCase()
+                      : selectedSystem.subtitle.toUpperCase()}
+                  </p>
+                  <p className="telemetry-description">
+                    {selectedNode?.description ?? selectedSystem.description}
+                  </p>
+                  <ul className="telemetry-list">
+                    {(
+                      selectedNode?.details ??
+                      selectedSystem.nodes.map((node) => node.name)
+                    ).map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
 
-                {selectedNode?.link ? (
-                  <a
-                    href={selectedNode.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="telemetry-link"
-                  >
-                    Open Transmission
-                  </a>
-                ) : null}
-              </motion.div>
-            </AnimatePresence>
-          ) : null}
+                  {selectedNode?.link ? (
+                    <a
+                      href={selectedNode.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="telemetry-link"
+                    >
+                      Open Transmission
+                    </a>
+                  ) : null}
+                </motion.div>
+              </AnimatePresence>
+            ) : null}
+          </div>
         </section>
 
         <button
