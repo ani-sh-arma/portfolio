@@ -439,17 +439,22 @@ export function SpacePortfolio() {
     }
 
     const media = window.matchMedia("(max-width: 780px)");
-    const syncViewportState = (isMobile: boolean) => {
+    const syncViewportState = (
+      isMobile: boolean,
+      collapseInspectorOnMobile = false,
+    ) => {
       setIsMobileViewport(isMobile);
       if (!isMobile) {
         setMobileInspectorOpen(true);
+        return;
+      }
+
+      if (collapseInspectorOnMobile) {
+        setMobileInspectorOpen(false);
       }
     };
 
-    syncViewportState(media.matches);
-    if (media.matches) {
-      setMobileInspectorOpen(false);
-    }
+    syncViewportState(media.matches, true);
 
     const handleChange = (event: MediaQueryListEvent) => {
       syncViewportState(event.matches);
