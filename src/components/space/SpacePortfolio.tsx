@@ -431,6 +431,9 @@ export function SpacePortfolio() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [mobileInspectorOpen, setMobileInspectorOpen] = useState(true);
+  const inspectorDragStartYRef = useRef<number | null>(null);
+  const inspectorDragDeltaYRef = useRef(0);
+  const inspectorIgnoreTapRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -485,6 +488,67 @@ export function SpacePortfolio() {
     setSelection(nextSelection);
   };
 
+  const toggleMobileInspector = () => {
+    if (!isMobileViewport) {
+      return;
+    }
+    setMobileInspectorOpen((current) => !current);
+  };
+
+  const handleInspectorHeaderPointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (!isMobileViewport) {
+      return;
+    }
+    inspectorDragStartYRef.current = event.clientY;
+    inspectorDragDeltaYRef.current = 0;
+    inspectorIgnoreTapRef.current = false;
+  };
+
+  const handleInspectorHeaderPointerMove = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (!isMobileViewport || inspectorDragStartYRef.current === null) {
+      return;
+    }
+    const delta = event.clientY - inspectorDragStartYRef.current;
+    inspectorDragDeltaYRef.current = delta;
+    if (Math.abs(delta) > 6) {
+      inspectorIgnoreTapRef.current = true;
+    }
+  };
+
+  const handleInspectorHeaderPointerEnd = () => {
+    if (!isMobileViewport || inspectorDragStartYRef.current === null) {
+      return;
+    }
+
+    const dragDelta = inspectorDragDeltaYRef.current;
+    inspectorDragStartYRef.current = null;
+    inspectorDragDeltaYRef.current = 0;
+
+    if (dragDelta > 28) {
+      setMobileInspectorOpen(false);
+      return;
+    }
+
+    if (dragDelta < -28) {
+      setMobileInspectorOpen(true);
+    }
+  };
+
+  const handleInspectorHeaderClick = () => {
+    if (!isMobileViewport) {
+      return;
+    }
+    if (inspectorIgnoreTapRef.current) {
+      inspectorIgnoreTapRef.current = false;
+      return;
+    }
+    toggleMobileInspector();
+  };
+
   return (
     <div className="space-shell">
       <div className="space-canvas">
@@ -535,18 +599,33 @@ export function SpacePortfolio() {
         <section
           className={`data-inspector ${isMobileViewport && !mobileInspectorOpen ? "data-inspector--collapsed" : ""}`}
         >
-          <div className="data-inspector-header">
+          <div
+            className={`data-inspector-header ${isMobileViewport ? "data-inspector-header--interactive" : ""}`}
+            role={isMobileViewport ? "button" : undefined}
+            tabIndex={isMobileViewport ? 0 : undefined}
+            aria-expanded={isMobileViewport ? mobileInspectorOpen : undefined}
+            aria-controls={isMobileViewport ? "telemetry-panel" : undefined}
+            onClick={handleInspectorHeaderClick}
+            onPointerDown={handleInspectorHeaderPointerDown}
+            onPointerMove={handleInspectorHeaderPointerMove}
+            onPointerUp={handleInspectorHeaderPointerEnd}
+            onPointerCancel={handleInspectorHeaderPointerEnd}
+            onPointerLeave={handleInspectorHeaderPointerEnd}
+            onKeyDown={(event) => {
+              if (
+                isMobileViewport &&
+                (event.key === "Enter" || event.key === " " || event.key === "Spacebar")
+              ) {
+                event.preventDefault();
+                toggleMobileInspector();
+              }
+            }}
+          >
             <p className="hud-label">Telemetry</p>
             {isMobileViewport ? (
-              <button
-                type="button"
-                className="inspector-toggle"
-                aria-expanded={mobileInspectorOpen}
-                aria-controls="telemetry-panel"
-                onClick={() => setMobileInspectorOpen((current) => !current)}
-              >
-                {mobileInspectorOpen ? "Collapse" : "Expand"}
-              </button>
+              <span className="inspector-toggle">
+                {mobileInspectorOpen ? "Pull down" : "Pull up"}
+              </span>
             ) : null}
           </div>
           <div id="telemetry-panel">

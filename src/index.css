@@ -226,6 +226,18 @@
   cursor: pointer;
 }
 
+.data-inspector-header--interactive {
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+}
+
+.data-inspector-header--interactive:focus-visible {
+  outline: 2px solid rgba(147, 226, 255, 0.9);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
 .inspector-toggle:hover {
   border-color: rgba(158, 235, 255, 0.92);
 }
@@ -410,16 +422,20 @@
   .data-inspector {
     top: auto;
     bottom: 0.72rem;
+    left: 0.72rem;
     right: 0.72rem;
-    width: calc(100vw - 1.44rem);
-    max-height: 72vh;
+    width: auto;
+    max-height: min(72vh, 500px);
+    padding: 0.72rem;
+    overflow: hidden;
+    border-radius: 18px;
+    transition: max-height 0.22s ease, padding 0.22s ease, box-shadow 0.22s ease;
   }
 
   .data-inspector--collapsed {
-    width: auto;
-    max-height: none;
-    max-width: calc(100vw - 1.44rem);
-    padding: 0.68rem 0.72rem;
+    max-height: 3.3rem;
+    padding-bottom: 0.5rem;
+    box-shadow: 0 14px 30px rgba(3, 7, 20, 0.5);
   }
 
   .data-inspector--collapsed .data-inspector-header {
