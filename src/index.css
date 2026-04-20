@@ -307,17 +307,21 @@
 
 .help-pill {
   position: absolute;
-  left: 1rem;
+  right: 1.05rem;
   bottom: 1rem;
+  width: 3.15rem;
+  height: 3.15rem;
+  display: grid;
+  place-items: center;
   border: 1px solid rgba(144, 207, 255, 0.52);
   background: rgba(8, 16, 37, 0.84);
   color: #d5ebff;
   border-radius: 999px;
-  padding: 0.58rem 1.05rem;
+  padding: 0;
   font-family: "JetBrains Mono", monospace;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
   cursor: pointer;
   pointer-events: auto;
   z-index: 5;
@@ -335,7 +339,7 @@
 
 .help-menu {
   position: absolute;
-  left: 1rem;
+  right: 1rem;
   bottom: 4.2rem;
   width: min(360px, calc(100vw - 2rem));
   z-index: 5;
@@ -427,18 +431,25 @@
     width: auto;
     max-height: min(72vh, 500px);
     padding: 0.72rem;
-    overflow: hidden;
+    overflow-y: auto;
     border-radius: 18px;
-    transition: max-height 0.22s ease, padding 0.22s ease, box-shadow 0.22s ease;
+    transition:
+      max-height 0.22s ease,
+      height 0.22s ease,
+      padding 0.22s ease,
+      box-shadow 0.22s ease;
   }
 
   .data-inspector--collapsed {
-    max-height: 3.3rem;
-    padding-bottom: 0.5rem;
+    height: 4.4rem;
+    max-height: 4.4rem;
+    padding: 0.64rem 0.72rem;
+    overflow: hidden;
     box-shadow: 0 14px 30px rgba(3, 7, 20, 0.5);
   }
 
   .data-inspector--collapsed .data-inspector-header {
+    min-height: 2.7rem;
     margin-bottom: 0;
   }
 
